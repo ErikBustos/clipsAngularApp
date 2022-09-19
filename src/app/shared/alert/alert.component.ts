@@ -11,6 +11,7 @@ export class AlertComponent implements OnInit {
   get bgColor() {
     return `bg-${this.color}-400`;
   }
+  
   constructor() {
     console.log(this.bgColor)
    }
