@@ -1,12 +1,26 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import{ AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+
+const MSSG_ACCOUNT_ISCREATING = 'Please wait! Your account is being created.';
+const MSSG_UNEXPECTED_ERROR = 'An unexpected error ocurred. Please try again later.';
+const MSSG_ACCOUNT_SUCCESS = 'Success! Your account has been created.';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
+
 export class RegisterComponent {
+  constructor(
+    private auth: AngularFireAuth,
+    private db: AngularFirestore
+    ) {}
+
+  inSubmission = false;
+
   name = new FormControl('', [
     Validators.required,
     Validators.minLength(3)
@@ -34,7 +48,7 @@ export class RegisterComponent {
   ]);
   
   showAlert = false;
-  alertMsg = 'Please wait! Your account is being created.';
+  alertMsg = MSSG_ACCOUNT_ISCREATING;
   alertColor = 'blue';
 
 
@@ -47,9 +61,31 @@ export class RegisterComponent {
     phoneNumber: this.phoneNumber
   });
 
-  register() {
+  async register() {
     this.showAlert = true;
-    this.alertMsg = 'Please wait! Your account is being created.';
+    this.alertMsg = MSSG_ACCOUNT_ISCREATING;
     this.alertColor = 'blue';
+    this.inSubmission = true;
+
+    const { email, password } = this.registerForm.value;
+    try {
+      const userCred = await this.auth.createUserWithEmailAndPassword(
+        email as string, password as string
+      );
+      await this.db.collection('users').add({
+        name: this.name.value,
+        email: this.email.value,
+        age: this.age.value,
+        phoneNumber: this.phoneNumber.value
+      });
+    } catch(e) {
+      console.error(e);
+      this.alertMsg = MSSG_UNEXPECTED_ERROR;
+      this.alertColor = 'red';
+      this.inSubmission = false;
+      return ;
+    }
+    this.alertMsg = MSSG_ACCOUNT_SUCCESS;
+    this.alertColor = 'green';
   }
 }
