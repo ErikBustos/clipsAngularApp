@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { RegisterValidators } from '../validators/register-validators';
+import { EmailTaken } from '../validators/email-taken';
 import IUser from 'src/app/models/user.model';
 
 const MSSG_ACCOUNT_ISCREATING = 'Please wait! Your account is being created.';
@@ -16,7 +17,8 @@ const MSSG_ACCOUNT_SUCCESS = 'Success! Your account has been created.';
 
 export class RegisterComponent {
   constructor(
-    private auth: AuthService
+    private auth: AuthService,
+    private emailTaken: EmailTaken
   ) {}
 
   inSubmission = false;
@@ -28,7 +30,7 @@ export class RegisterComponent {
   email = new FormControl('', [
     Validators.required,
     Validators.email
-  ]);
+  ], [this.emailTaken.validate]);
   age = new FormControl<number | null>(null, [
     Validators.required,
     Validators.min(14),
