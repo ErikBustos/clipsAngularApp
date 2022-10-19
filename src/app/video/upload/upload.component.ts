@@ -2,12 +2,13 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
 import { v4 as uuid } from 'uuid';
-import { last, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ClipService } from 'src/app/services/clip.service';
 import firebase from 'firebase/compat/app';
 import { Router } from '@angular/router';
 import { FfmpegService } from 'src/app/services/ffmpeg.service';
+import { combineLatest, forkJoin } from 'rxjs';
 
 const uploadingMsg = 'Please wait! your clip is being uploaded';
 const successUploadMsg = 'Success! Your clip is now ready to share with the world.';
@@ -30,6 +31,9 @@ export class UploadComponent implements OnDestroy {
   showPercentage = false;
   user : firebase.User | null = null;
   task? : AngularFireUploadTask;
+  screenshots: string[] = [];
+  selectedScreenshot = '';
+  screenshotTask? : AngularFireUploadTask;
 
   title = new FormControl('', {
     validators: [
@@ -59,6 +63,10 @@ export class UploadComponent implements OnDestroy {
   }
 
   async storeFile($event: Event) {
+    if(this.ffmpegService.isRunning) {
+      return;
+    }
+
     this.isDragover = false;
 
     this.file = ($event as DragEvent).dataTransfer ?
@@ -69,7 +77,8 @@ export class UploadComponent implements OnDestroy {
       return ;
     }
 
-    await this.ffmpegService.getScreenshots(this.file);
+    this.screenshots = await this.ffmpegService.getScreenshots(this.file);
+    this.selectedScreenshot = this.screenshots[0];
 
     this.title.setValue(
       this.file.name.replace(/\.[^/.]+$/, '')
@@ -77,7 +86,7 @@ export class UploadComponent implements OnDestroy {
     this.nextStep = true;
   }
 
-  uploadFile() {
+  async uploadFile() {
     this.uploadForm.disable();
 
     this.showAlert = true;
@@ -89,24 +98,52 @@ export class UploadComponent implements OnDestroy {
     const clipFileName = uuid();
     const clipPath = `clips/${clipFileName}.mp4`;
 
+    const screenshotBlob = await this.ffmpegService.blobFromURL(
+      this.selectedScreenshot 
+    );
+
+    const screenshotPath = `screenshots/${clipFileName}.png`;
+
     this.task = this.storage.upload(clipPath, this.file);
     const clipRef = this.storage.ref(clipPath);
 
-    this.task.percentageChanges().subscribe(progress => {
-      this.percentage = progress as number / 100;
-    })
+    this.screenshotTask = this.storage.upload(screenshotPath, screenshotBlob);
 
-    this.task.snapshotChanges().pipe(
-      last(),
-      switchMap(() => clipRef.getDownloadURL())
+    const screenshotRef = this.storage.ref(screenshotPath);
+
+    combineLatest([
+      this.task.percentageChanges(),
+      this.screenshotTask.percentageChanges()
+    ]).subscribe((progress) => {
+      const [clipProgress, screeshotProgress] = progress;
+
+      if(!clipProgress || !screeshotProgress) return ;
+
+      const total = clipProgress + screeshotProgress;
+
+      this.percentage = total as number / 200;
+    });
+
+    forkJoin([
+        this.task.snapshotChanges(),
+        this.screenshotTask.snapshotChanges()
+      ]).pipe(
+      switchMap(() => forkJoin([
+        clipRef.getDownloadURL(),
+        screenshotRef.getDownloadURL()
+      ]))
     ).subscribe({
-      next: async (url) => {
+      next: async (urls) => {
+        const [clipUrl, screenshotUrl] = urls;
+
         const clip = {
           uid : this.user?.uid as string,
           displayName : this.user?.displayName as string,
           title: this.title.value,
           fileName: `${clipFileName}.mp4`,
-          url,
+          url: clipUrl,
+          screenshotUrl,
+          screenshotFileName: `${clipFileName}.png`,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
