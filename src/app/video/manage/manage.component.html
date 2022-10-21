@@ -17,19 +17,21 @@
     <!-- Video List -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div *ngFor="let clip of clips"
-        class="mt-6 rounded-tl-2xl rounded-br-2xl shadow-xl bg-secondary flex flex-col justify-start">
+        class="mt-6 rounded-tl-2xl rounded-br-2xl shadow-xl bg-secondary flex flex-col justify-start hover:-translate-y-2 hover:shadow-2xl" >
 
         <!-- Image -->
-        <a href="#">
+        <a href="" (click)="handleClick($event)">
           <img class="card-img-top rounded-tl-2xl w-full" 
-          src="clip.screenshotUrl" crossorigin>
+          [src]="clip.screenshotUrl"
+          [routerLink]="['/','clip', clip.docId]"
+          crossorigin>
         </a>
 
         <!-- Body -->
         <div class="p-6 text-2xl">
 
           <!-- Link -->
-          <a routerLink="['/', 'clip', clip.docId]"
+          <a [routerLink]="['/','clip', clip.docId]"
            class="font-bold mb-2">
             {{ clip.title }}
           </a>

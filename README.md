@@ -1,27 +1,47 @@
 # Clips
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.2.
+This project is an Angular App to upload your video clips and be able to share it with the world!
 
-## Development server
+# Try it yourself!
+Want to check it out? Feel free to use this credentials to login to check the app!
+- test@test.com/Testpassword!1
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## App Features:
+- Users are allowed to upload their desired clips.
+    - The user is able to see the progress in their upload.
+    - User is able to select their video's name.
+- The App Process the video upload and allow the User to select the desired video thumbnail. (using FFmpeg and Web Assembly)
+- Users are able to show their clips with the world.without them needing to Register to the App.
+- Play the Clips on the App's Video Player.
+    - Picture in picture
+    - Pause/Play 
+    - Control volume settings
+    - Full screen mode
+- Users are able to manage their clips: 
+   - Edit the name of their clips.
+   - Delete their clips. 
+- Users are sort their clips by creating date in Ascending and Descending order.
+- Users are able to browse their clips.
+- Email Authentication with firebase.
+    - Login form
+    - Register form with email
+- User is able to log out.
 
-## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Angular Features: 
+- Routing
+- Video Processing
+- State Management
+- Forms
+    - Reactive Forms
+    - Template Forms
+    - Forms validations
+    - Custom Validators
+- RxJS (Observables)
+- Processing videos with FFmpeg
+- Pipes
+- Lazy Loading
+- Modules
+- Tailwind
+- Much more ...

@@ -13,8 +13,6 @@ export const environment = {
     appId: "1:879644896519:web:c282ed4847c526d828e9a2"
   }  
 };
-
-//test user : test@test.com/ Testpassword!1
 /*
  * For easier debugging in development mode, you can import the following file
  * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.

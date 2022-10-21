@@ -91,4 +91,8 @@ export class ManageComponent implements OnInit {
 
     alert('Link Copied!');
   }
+
+  handleClick($event: Event) {
+    $event.preventDefault();
+  }
 }
