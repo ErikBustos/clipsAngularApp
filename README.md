@@ -5,6 +5,7 @@ This project is an Angular App to upload your video clips and be able to share i
 # Try it yourself!
 Want to check it out? Feel free to use this credentials to login to check the app!
 - test@test.com/Testpassword!1
+
 https://clips-angular-umber.vercel.app/
 
 ## App Features:
